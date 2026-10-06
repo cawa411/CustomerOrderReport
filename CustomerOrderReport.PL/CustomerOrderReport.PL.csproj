@@ -11,4 +11,8 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.*" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\CustomerOrderReport.BLL\CustomerOrderReport.BLL.csproj" />
+    </ItemGroup>
+
 </Project>
