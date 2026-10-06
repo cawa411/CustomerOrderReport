@@ -15,4 +15,8 @@
       <ProjectReference Include="..\CustomerOrderReport.BLL\CustomerOrderReport.BLL.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\order_log.csv" Link="order_log.csv" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
 </Project>
