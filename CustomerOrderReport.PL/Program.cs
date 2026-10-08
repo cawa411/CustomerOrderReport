@@ -1,10 +1,15 @@
-using System.Globalization;
 using CustomerOrderReport.BLL;
 using CustomerOrderReport.DAL;
+using CustomerOrderReport.DAL.Exceptions;
 using CustomerOrderReport.DAL.Options;
+using CustomerOrderReport.PL;
+using CustomerOrderReport.PL.Arguments;
+using CustomerOrderReport.PL.Exceptions;
+using CustomerOrderReport.PL.Writers;
 using Microsoft.Extensions.DependencyInjection;
 
 const string ordersFileName = "order_log.csv";
+const string usage = "Использование: CustomerOrderReport.PL [console|file] <client_id> [client_id ...]";
 
 var services = new ServiceCollection();
 
@@ -14,24 +19,30 @@ services.AddSingleton(new OrdersFileOptions()
 {
     TablePath = Path.Combine(AppContext.BaseDirectory, ordersFileName)
 });
+services.AddSingleton<IArgsParser, ArgsParser>();
+services.AddSingleton<IReportRunner, ReportRunner>();
+services.AddSingleton<ReportFormatter>();
+services.AddKeyedSingleton<IWriter, ConsoleWriter>(ReportModes.Console);
+services.AddKeyedSingleton<IWriter, FileWriter>(ReportModes.File);
 
 using var provider = services.BuildServiceProvider();
-var reportService = provider.GetRequiredService<IReportService>();
 
-
-
-var idArgs = args.Length > 0 && args[0] is "console" or "file" ? args[1..] : args;
-
-Console.WriteLine("client_id | orders_sum | favorite_item_name");
-foreach (var arg in idArgs)
+try
 {
-    if (!long.TryParse(arg, out var clientId))
-    {
-        Console.Error.WriteLine($"Некорректный id клиента: {arg}");
-        continue;
-    }
+    var request = provider.GetRequiredService<IArgsParser>().Parse(args);
+    var writer = provider.GetRequiredKeyedService<IWriter>(request.Mode);
+    var runner = provider.GetRequiredService<IReportRunner>();
 
-    var report = reportService.GetClientReport(clientId);
-    Console.WriteLine(string.Create(CultureInfo.InvariantCulture,
-        $"{report.ClientId} | {report.OrderSum:F2} | {report.FavoriteItemName}"));
+    return runner.Run(request.ClientIds, writer) ? 0 : 1;
+}
+catch (InvalidArgumentException e)
+{
+    Console.Error.WriteLine($"Ошибка: {e.Message}");
+    Console.Error.WriteLine(usage);
+    return 1;
+}
+catch (OrdersFileException e)
+{
+    Console.Error.WriteLine($"Ошибка чтения заказов: {e.Message}");
+    return 1;
 }

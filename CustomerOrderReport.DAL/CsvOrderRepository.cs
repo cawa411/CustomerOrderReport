@@ -1,4 +1,5 @@
 using System.Globalization;
+using CustomerOrderReport.DAL.Exceptions;
 using CustomerOrderReport.DAL.Models;
 using CustomerOrderReport.DAL.Options;
 
@@ -19,18 +20,23 @@ public class CsvOrderRepository: IOrderRepository
 
     private List<Order> GetAll(OrdersFileOptions fileOptions)
     {
+        if (!File.Exists(fileOptions.TablePath))
+            throw new OrdersFileNotFoundException(fileOptions.TablePath);
+
         List<Order> result = new ();
         using (StreamReader reader = new StreamReader(fileOptions.TablePath))
         {
             reader.ReadLine();
+            var lineNumber = 1;
             string? line;
             while ((line = reader.ReadLine()) != null)
             {
+                lineNumber++;
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
                 var temp = line.Split(",");
                 if (!OrderItemValidation(temp))
-                    throw new Exception("bebebe");
+                    throw new CsvFormatException(lineNumber, line);
                 Order orderItem = CreateOrderItem(temp[0], temp[1], temp[2], temp[3], temp[4]);
                 result.Add(orderItem);
             }
