@@ -8,7 +8,7 @@ using CustomerOrderReport.PL.Exceptions;
 using CustomerOrderReport.PL.Writers;
 using Microsoft.Extensions.DependencyInjection;
 
-const string ordersFileName = "order_log.csv";
+const string ordersFileName = "orders_log.csv";
 const string usage = "Использование: CustomerOrderReport.PL [console|file] <client_id> [client_id ...]";
 
 var services = new ServiceCollection();

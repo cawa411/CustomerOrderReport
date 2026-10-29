@@ -47,7 +47,7 @@ public class CsvOrderRepository: IOrderRepository
 
     private Order CreateOrderItem(string clientId, string orderId, string itemName, string itemQuantity, string itemPrice)
     {
-        return new Order(long.Parse(clientId), long.Parse(orderId), itemName, 
+        return new Order(long.Parse(clientId), long.Parse(orderId), itemName.Trim(), 
             int.Parse(itemQuantity), decimal.Parse(itemPrice, CultureInfo.InvariantCulture));
     }
     

@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\order_log.csv" Link="order_log.csv" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="..\orders_log.csv" Link="orders_log.csv" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>
